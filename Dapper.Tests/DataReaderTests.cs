@@ -4,7 +4,14 @@ using Xunit;
 
 namespace Dapper.Tests
 {
-    public class DataReaderTests : TestBase
+    [Collection("DataReaderTests")]
+    public sealed class SystemSqlClientDataReaderTests : DataReaderTests<SystemSqlClientProvider> { }
+#if MSSQLCLIENT
+    [Collection("DataReaderTests")]
+    public sealed class MicrosoftSqlClientDataReaderTests : DataReaderTests<MicrosoftSqlClientProvider> { }
+#endif
+
+    public abstract class DataReaderTests<TProvider> : TestBase<TProvider> where TProvider : DatabaseProvider
     {
         [Fact]
         public void GetSameReaderForSameShape()

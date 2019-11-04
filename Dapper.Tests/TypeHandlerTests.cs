@@ -9,7 +9,13 @@ using Xunit;
 namespace Dapper.Tests
 {
     [Collection(NonParallelDefinition.Name)]
-    public class TypeHandlerTests : TestBase
+    public sealed class SystemSqlClientTypeHandlerTests : TypeHandlerTests<SystemSqlClientProvider> { }
+#if MSSQLCLIENT
+    [Collection(NonParallelDefinition.Name)]
+    public sealed class MicrosoftSqlClientTypeHandlerTests : TypeHandlerTests<MicrosoftSqlClientProvider> { }
+#endif
+
+    public abstract class TypeHandlerTests<TProvider> : TestBase<TProvider> where TProvider : DatabaseProvider
     {
         [Fact]
         public void TestChangingDefaultStringTypeMappingToAnsiString()
@@ -76,13 +82,8 @@ namespace Dapper.Tests
         private static string GetDescriptionFromAttribute(MemberInfo member)
         {
             if (member == null) return null;
-#if NETCOREAPP1_0
-        var data = member.CustomAttributes.FirstOrDefault(x => x.AttributeType == typeof(DescriptionAttribute));
-        return (string)data?.ConstructorArguments.Single().Value;
-#else
             var attrib = (DescriptionAttribute)Attribute.GetCustomAttribute(member, typeof(DescriptionAttribute), false);
             return attrib?.Description;
-#endif
         }
 
         public class TypeWithMapping
